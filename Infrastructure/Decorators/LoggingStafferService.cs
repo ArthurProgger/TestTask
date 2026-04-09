@@ -8,84 +8,35 @@ namespace Infrastructure.Decorators;
 public class LoggingStafferService(
     IStafferService inner,
     ILogger<LoggingStafferService> logger,
-    IDialogService dialogService) : IStafferService
+    IDialogService dialogService) : LoggingServiceBase(logger, dialogService), IStafferService
 {
-    public IList<StafferDto> GetAll()
-    {
-        logger.LogInformation("GetAll: запрос всех сотрудников");
-        try
-        {
-            var result = inner.GetAll();
-            logger.LogInformation("GetAll: получено {Count} сотрудников", result.Count);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "GetAll: ошибка при получении сотрудников");
-            dialogService.ShowWarning(ex.Message);
-            return [];
-        }
-    }
+    public IList<StafferDto> GetAll() => Execute(
+        () => inner.GetAll(), [],
+        "GetAll: запрос всех сотрудников",
+        "GetAll: сотрудники получены",
+        "GetAll: ошибка при получении сотрудников");
 
-    public void Create(StafferModel model)
-    {
-        logger.LogInformation("Create: создание сотрудника \"{FullName}\"", model.FullName);
-        try
-        {
-            inner.Create(model);
-            logger.LogInformation("Create: сотрудник \"{FullName}\" создан (Id={Id})", model.FullName, model.Id);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Create: ошибка при создании сотрудника \"{FullName}\"", model.FullName);
-            dialogService.ShowWarning(ex.Message);
-        }
-    }
+    public void Create(StafferModel model) => Execute(
+        () => inner.Create(model),
+        $"Create: создание сотрудника \"{model.FullName}\"",
+        $"Create: сотрудник \"{model.FullName}\" создан (Id={model.Id})",
+        $"Create: ошибка при создании сотрудника \"{model.FullName}\"");
 
-    public void Update(StafferModel model)
-    {
-        logger.LogInformation("Update: обновление сотрудника Id={Id}", model.Id);
-        try
-        {
-            inner.Update(model);
-            logger.LogInformation("Update: сотрудник Id={Id} обновлён", model.Id);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Update: ошибка при обновлении сотрудника Id={Id}", model.Id);
-            dialogService.ShowWarning(ex.Message);
-        }
-    }
+    public void Update(StafferModel model) => Execute(
+        () => inner.Update(model),
+        $"Update: обновление сотрудника Id={model.Id}",
+        $"Update: сотрудник Id={model.Id} обновлён",
+        $"Update: ошибка при обновлении сотрудника Id={model.Id}");
 
-    public bool CanDelete(int stafferId)
-    {
-        logger.LogInformation("CanDelete: проверка удаления сотрудника Id={StafferId}", stafferId);
-        try
-        {
-            var result = inner.CanDelete(stafferId);
-            logger.LogInformation("CanDelete: сотрудник Id={StafferId}, результат={Result}", stafferId, result);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "CanDelete: ошибка при проверке удаления сотрудника Id={StafferId}", stafferId);
-            dialogService.ShowWarning(ex.Message);
-            return false;
-        }
-    }
+    public bool CanDelete(int stafferId) => Execute(
+        () => inner.CanDelete(stafferId), false,
+        $"CanDelete: проверка удаления сотрудника Id={stafferId}",
+        $"CanDelete: проверка завершена для Id={stafferId}",
+        $"CanDelete: ошибка при проверке удаления сотрудника Id={stafferId}");
 
-    public void Delete(int stafferId)
-    {
-        logger.LogInformation("Delete: удаление сотрудника Id={StafferId}", stafferId);
-        try
-        {
-            inner.Delete(stafferId);
-            logger.LogInformation("Delete: сотрудник Id={StafferId} удалён", stafferId);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Delete: ошибка при удалении сотрудника Id={StafferId}", stafferId);
-            dialogService.ShowWarning(ex.Message);
-        }
-    }
+    public void Delete(int stafferId) => Execute(
+        () => inner.Delete(stafferId),
+        $"Delete: удаление сотрудника Id={stafferId}",
+        $"Delete: сотрудник Id={stafferId} удалён",
+        $"Delete: ошибка при удалении сотрудника Id={stafferId}");
 }

@@ -8,101 +8,41 @@ namespace Infrastructure.Decorators;
 public class LoggingCounterAgentService(
     ICounterAgentService inner,
     ILogger<LoggingCounterAgentService> logger,
-    IDialogService dialogService) : ICounterAgentService
+    IDialogService dialogService) : LoggingServiceBase(logger, dialogService), ICounterAgentService
 {
-    public IList<CounterAgentDto> GetAll()
-    {
-        logger.LogInformation("GetAll: запрос всех контрагентов");
-        try
-        {
-            var result = inner.GetAll();
-            logger.LogInformation("GetAll: получено {Count} контрагентов", result.Count);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "GetAll: ошибка при получении контрагентов");
-            dialogService.ShowWarning(ex.Message);
-            return [];
-        }
-    }
+    public IList<CounterAgentDto> GetAll() => Execute(
+        () => inner.GetAll(), [],
+        "GetAll: запрос всех контрагентов",
+        "GetAll: контрагенты получены",
+        "GetAll: ошибка при получении контрагентов");
 
-    public IList<StafferDto> GetStaffers()
-    {
-        logger.LogInformation("GetStaffers: запрос списка сотрудников");
-        try
-        {
-            var result = inner.GetStaffers();
-            logger.LogInformation("GetStaffers: получено {Count} сотрудников", result.Count);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "GetStaffers: ошибка при получении сотрудников");
-            dialogService.ShowWarning(ex.Message);
-            return [];
-        }
-    }
+    public IList<StafferDto> GetStaffers() => Execute(
+        () => inner.GetStaffers(), [],
+        "GetStaffers: запрос списка сотрудников",
+        "GetStaffers: сотрудники получены",
+        "GetStaffers: ошибка при получении сотрудников");
 
-    public void Create(CounterAgentModel model)
-    {
-        logger.LogInformation("Create: создание контрагента \"{Name}\"", model.Name);
-        try
-        {
-            inner.Create(model);
-            logger.LogInformation("Create: контрагент \"{Name}\" создан (Id={Id})", model.Name, model.Id);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Create: ошибка при создании контрагента \"{Name}\"", model.Name);
-            dialogService.ShowWarning(ex.Message);
-        }
-    }
+    public void Create(CounterAgentModel model) => Execute(
+        () => inner.Create(model),
+        $"Create: создание контрагента \"{model.Name}\"",
+        $"Create: контрагент \"{model.Name}\" создан (Id={model.Id})",
+        $"Create: ошибка при создании контрагента \"{model.Name}\"");
 
-    public void Update(CounterAgentModel model)
-    {
-        logger.LogInformation("Update: обновление контрагента Id={Id}", model.Id);
-        try
-        {
-            inner.Update(model);
-            logger.LogInformation("Update: контрагент Id={Id} обновлён", model.Id);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Update: ошибка при обновлении контрагента Id={Id}", model.Id);
-            dialogService.ShowWarning(ex.Message);
-        }
-    }
+    public void Update(CounterAgentModel model) => Execute(
+        () => inner.Update(model),
+        $"Update: обновление контрагента Id={model.Id}",
+        $"Update: контрагент Id={model.Id} обновлён",
+        $"Update: ошибка при обновлении контрагента Id={model.Id}");
 
-    public bool CanDelete(int counterAgentId)
-    {
-        logger.LogInformation("CanDelete: проверка удаления контрагента Id={CounterAgentId}", counterAgentId);
-        try
-        {
-            var result = inner.CanDelete(counterAgentId);
-            logger.LogInformation("CanDelete: контрагент Id={CounterAgentId}, результат={Result}", counterAgentId, result);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "CanDelete: ошибка при проверке удаления контрагента Id={CounterAgentId}", counterAgentId);
-            dialogService.ShowWarning(ex.Message);
-            return false;
-        }
-    }
+    public bool CanDelete(int counterAgentId) => Execute(
+        () => inner.CanDelete(counterAgentId), false,
+        $"CanDelete: проверка удаления контрагента Id={counterAgentId}",
+        $"CanDelete: проверка завершена для Id={counterAgentId}",
+        $"CanDelete: ошибка при проверке удаления контрагента Id={counterAgentId}");
 
-    public void Delete(int counterAgentId)
-    {
-        logger.LogInformation("Delete: удаление контрагента Id={CounterAgentId}", counterAgentId);
-        try
-        {
-            inner.Delete(counterAgentId);
-            logger.LogInformation("Delete: контрагент Id={CounterAgentId} удалён", counterAgentId);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Delete: ошибка при удалении контрагента Id={CounterAgentId}", counterAgentId);
-            dialogService.ShowWarning(ex.Message);
-        }
-    }
+    public void Delete(int counterAgentId) => Execute(
+        () => inner.Delete(counterAgentId),
+        $"Delete: удаление контрагента Id={counterAgentId}",
+        $"Delete: контрагент Id={counterAgentId} удалён",
+        $"Delete: ошибка при удалении контрагента Id={counterAgentId}");
 }

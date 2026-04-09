@@ -2,6 +2,4 @@ using Domain;
 
 namespace Application.Repositories;
 
-public interface ICounterAgentRepository : IRepository<CounterAgentModel>
-{
-}
+public interface ICounterAgentRepository : IRepository<CounterAgentModel>;

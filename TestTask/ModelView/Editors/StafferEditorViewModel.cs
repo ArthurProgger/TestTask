@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows.Input;
+using Application.DTOs;
 using Domain;
 
 namespace TestTask.ModelView.Editors;
@@ -13,19 +14,31 @@ public class StafferEditorViewModel : INotifyPropertyChanged, IDataErrorInfo
     public string FullName
     {
         get => _fullName;
-        set { _fullName = value; OnPropertyChanged(nameof(FullName)); }
+        set
+        {
+            _fullName = value;
+            OnPropertyChanged(nameof(FullName));
+        }
     }
 
     public Position Position
     {
         get => _position;
-        set { _position = value; OnPropertyChanged(nameof(Position)); }
+        set
+        {
+            _position = value;
+            OnPropertyChanged(nameof(Position));
+        }
     }
 
     public DateTime Birth
     {
         get => _birth;
-        set { _birth = value; OnPropertyChanged(nameof(Birth)); }
+        set
+        {
+            _birth = value;
+            OnPropertyChanged(nameof(Birth));
+        }
     }
 
     public IEnumerable<Position> Positions => Enum.GetValues<Position>();
@@ -38,7 +51,7 @@ public class StafferEditorViewModel : INotifyPropertyChanged, IDataErrorInfo
     public bool? DialogResult { get; private set; }
     public event Action<bool?>? CloseRequested;
 
-    public StafferEditorViewModel(StafferModel? existing = null)
+    public StafferEditorViewModel(StafferDto? existing = null)
     {
         if (existing != null)
         {
@@ -57,8 +70,7 @@ public class StafferEditorViewModel : INotifyPropertyChanged, IDataErrorInfo
     }
 
     private bool IsValid =>
-        string.IsNullOrWhiteSpace(this[nameof(FullName)]) &&
-        string.IsNullOrWhiteSpace(this[nameof(Birth)]);
+        string.IsNullOrWhiteSpace(this[nameof(FullName)]) && string.IsNullOrWhiteSpace(this[nameof(Birth)]);
 
     private void Save()
     {
@@ -74,15 +86,15 @@ public class StafferEditorViewModel : INotifyPropertyChanged, IDataErrorInfo
 
     public string Error => string.Empty;
 
-    public string this[string columnName] => columnName switch
-    {
-        nameof(FullName) => string.IsNullOrWhiteSpace(FullName) ? "ФИО обязательно" : string.Empty,
-        nameof(Birth) => Birth >= DateTime.Today ? "Дата рождения должна быть в прошлом" : string.Empty,
-        _ => string.Empty
-    };
+    public string this[string columnName] =>
+        columnName switch
+        {
+            nameof(FullName) => string.IsNullOrWhiteSpace(FullName) ? "ФИО обязательно" : string.Empty,
+            nameof(Birth) => Birth >= DateTime.Today ? "Дата рождения должна быть в прошлом" : string.Empty,
+            _ => string.Empty
+        };
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void OnPropertyChanged(string name) =>
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }

@@ -1,3 +1,4 @@
+using Application.DTOs;
 using Application.Repositories;
 using Application.Services;
 using Domain;
@@ -6,10 +7,10 @@ namespace Infrastructure.Services;
 
 public class StafferService(Func<IUnitOfWork> uowFactory) : IStafferService
 {
-    public IList<StafferModel> GetAll()
+    public IList<StafferDto> GetAll()
     {
         using var uow = uowFactory();
-        return uow.Staffers.GetAll();
+        return uow.Staffers.GetAll().Select(s => s.ToDto()).ToList();
     }
 
     public void Create(StafferModel model)
@@ -29,15 +30,19 @@ public class StafferService(Func<IUnitOfWork> uowFactory) : IStafferService
     public bool CanDelete(int stafferId)
     {
         using var uow = uowFactory();
-        var hasOrders = uow.Orders.GetAll().Any(o => o.Staffer?.Id == stafferId);
-        var hasAgents = uow.CounterAgents.GetAll().Any(c => c.Staffer?.Id == stafferId);
+        var hasOrders = uow.Orders.GetAll().Any(o => o.Staffer.Id == stafferId);
+        var hasAgents = uow.CounterAgents.GetAll().Any(c => c.Staffer.Id == stafferId);
         return !hasOrders && !hasAgents;
     }
 
-    public void Delete(StafferModel model)
+    public void Delete(int stafferId)
     {
         using var uow = uowFactory();
-        uow.Staffers.Delete(model);
+        var entity = uow.Staffers.GetById(stafferId);
+        
+        if (entity == null) return;
+        
+        uow.Staffers.Delete(entity);
         uow.Commit();
     }
 }

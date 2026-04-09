@@ -1,3 +1,4 @@
+using Application.DTOs;
 using Application.Repositories;
 using Application.Services;
 using Domain;
@@ -6,22 +7,22 @@ namespace Infrastructure.Services;
 
 public class OrderService(Func<IUnitOfWork> uowFactory) : IOrderService
 {
-    public IList<OrderModel> GetAll()
+    public IList<OrderDto> GetAll()
     {
         using var uow = uowFactory();
-        return uow.Orders.GetAll();
+        return uow.Orders.GetAll().Select(o => o.ToDto()).ToList();
     }
 
-    public IList<StafferModel> GetStaffers()
+    public IList<StafferDto> GetStaffers()
     {
         using var uow = uowFactory();
-        return uow.Staffers.GetAll();
+        return uow.Staffers.GetAll().Select(s => s.ToDto()).ToList();
     }
 
-    public IList<CounterAgentModel> GetCounterAgents()
+    public IList<CounterAgentDto> GetCounterAgents()
     {
         using var uow = uowFactory();
-        return uow.CounterAgents.GetAll();
+        return uow.CounterAgents.GetAll().Select(c => c.ToDto()).ToList();
     }
 
     public void Create(OrderModel model)
@@ -38,10 +39,14 @@ public class OrderService(Func<IUnitOfWork> uowFactory) : IOrderService
         uow.Commit();
     }
 
-    public void Delete(OrderModel model)
+    public void Delete(int orderId)
     {
         using var uow = uowFactory();
-        uow.Orders.Delete(model);
+        var entity = uow.Orders.GetById(orderId);
+        
+        if (entity == null) return;
+        
+        uow.Orders.Delete(entity);
         uow.Commit();
     }
 }

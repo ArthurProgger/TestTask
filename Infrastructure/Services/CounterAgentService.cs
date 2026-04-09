@@ -1,3 +1,4 @@
+using Application.DTOs;
 using Application.Repositories;
 using Application.Services;
 using Domain;
@@ -6,16 +7,16 @@ namespace Infrastructure.Services;
 
 public class CounterAgentService(Func<IUnitOfWork> uowFactory) : ICounterAgentService
 {
-    public IList<CounterAgentModel> GetAll()
+    public IList<CounterAgentDto> GetAll()
     {
         using var uow = uowFactory();
-        return uow.CounterAgents.GetAll();
+        return uow.CounterAgents.GetAll().Select(c => c.ToDto()).ToList();
     }
 
-    public IList<StafferModel> GetStaffers()
+    public IList<StafferDto> GetStaffers()
     {
         using var uow = uowFactory();
-        return uow.Staffers.GetAll();
+        return uow.Staffers.GetAll().Select(s => s.ToDto()).ToList();
     }
 
     public void Create(CounterAgentModel model)
@@ -35,14 +36,18 @@ public class CounterAgentService(Func<IUnitOfWork> uowFactory) : ICounterAgentSe
     public bool CanDelete(int counterAgentId)
     {
         using var uow = uowFactory();
-        var hasOrders = uow.Orders.GetAll().Any(o => o.CounterAgent?.Id == counterAgentId);
+        var hasOrders = uow.Orders.GetAll().Any(o => o.CounterAgent.Id == counterAgentId);
         return !hasOrders;
     }
 
-    public void Delete(CounterAgentModel model)
+    public void Delete(int counterAgentId)
     {
         using var uow = uowFactory();
-        uow.CounterAgents.Delete(model);
+        var entity = uow.CounterAgents.GetById(counterAgentId);
+        
+        if (entity == null) return;
+        
+        uow.CounterAgents.Delete(entity);
         uow.Commit();
     }
 }

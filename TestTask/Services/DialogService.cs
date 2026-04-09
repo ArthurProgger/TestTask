@@ -9,12 +9,9 @@ public class DialogService : IDialogService
 {
     private static readonly Dictionary<Type, Func<object, Window>> WindowFactories = new()
     {
-        [typeof(StafferEditorViewModel)] = vm =>
-            new StafferEditorWindow((StafferEditorViewModel)vm),
-        [typeof(CounterAgentEditorViewModel)] = vm =>
-            new CounterAgentEditorWindow((CounterAgentEditorViewModel)vm),
-        [typeof(OrderEditorViewModel)] = vm =>
-            new OrderEditorWindow((OrderEditorViewModel)vm),
+        [typeof(StafferEditorViewModel)] = vm => new StafferEditorWindow((StafferEditorViewModel)vm),
+        [typeof(CounterAgentEditorViewModel)] = vm => new CounterAgentEditorWindow((CounterAgentEditorViewModel)vm),
+        [typeof(OrderEditorViewModel)] = vm => new OrderEditorWindow((OrderEditorViewModel)vm),
     };
 
     public bool? ShowDialog<TViewModel>(TViewModel viewModel) where TViewModel : class
@@ -29,8 +26,8 @@ public class DialogService : IDialogService
 
     public bool Confirm(string message, string title = "Подтверждение")
     {
-        return MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question)
-               == MessageBoxResult.Yes;
+        return MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question) ==
+               MessageBoxResult.Yes;
     }
 
     public void ShowWarning(string message, string title = "Ошибка")

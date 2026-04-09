@@ -2,6 +2,4 @@ using Domain;
 
 namespace Application.Repositories;
 
-public interface IStafferRepository : IRepository<StafferModel>
-{
-}
+public interface IStafferRepository : IRepository<StafferModel>;

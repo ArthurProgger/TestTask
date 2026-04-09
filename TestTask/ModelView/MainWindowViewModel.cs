@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Application.DTOs;
 using Application.Services;
 using Domain;
 using TestTask.ModelView.Editors;
@@ -15,26 +16,26 @@ public class MainWindowViewModel : INotifyPropertyChanged
     private readonly IOrderService _orderService;
     private readonly IDialogService _dialogService;
 
-    public ObservableCollection<StafferModel> Staffers { get; } = new();
-    public ObservableCollection<CounterAgentModel> CounterAgents { get; } = new();
-    public ObservableCollection<OrderModel> Orders { get; } = new();
+    public ObservableCollection<StafferDto> Staffers { get; } = new();
+    public ObservableCollection<CounterAgentDto> CounterAgents { get; } = new();
+    public ObservableCollection<OrderDto> Orders { get; } = new();
 
-    private StafferModel? _selectedStaffer;
-    public StafferModel? SelectedStaffer
+    private StafferDto? _selectedStaffer;
+    public StafferDto? SelectedStaffer
     {
         get => _selectedStaffer;
         set => SetField(ref _selectedStaffer, value);
     }
 
-    private CounterAgentModel? _selectedCounterAgent;
-    public CounterAgentModel? SelectedCounterAgent
+    private CounterAgentDto? _selectedCounterAgent;
+    public CounterAgentDto? SelectedCounterAgent
     {
         get => _selectedCounterAgent;
         set => SetField(ref _selectedCounterAgent, value);
     }
 
-    private OrderModel? _selectedOrder;
-    public OrderModel? SelectedOrder
+    private OrderDto? _selectedOrder;
+    public OrderDto? SelectedOrder
     {
         get => _selectedOrder;
         set => SetField(ref _selectedOrder, value);
@@ -102,7 +103,9 @@ public class MainWindowViewModel : INotifyPropertyChanged
             Birth = vm.Birth
         };
         _stafferService.Create(model);
-        Staffers.Add(model);
+
+        var dto = model.ToDto();
+        Staffers.Add(dto);
     }
 
     private void EditStaffer()
@@ -111,10 +114,18 @@ public class MainWindowViewModel : INotifyPropertyChanged
         var vm = new StafferEditorViewModel(SelectedStaffer);
         if (_dialogService.ShowDialog(vm) != true) return;
 
+        var model = new StafferModel
+        {
+            Id = SelectedStaffer.Id,
+            FullName = vm.FullName,
+            Position = vm.Position,
+            Birth = vm.Birth
+        };
+        _stafferService.Update(model);
+
         SelectedStaffer.FullName = vm.FullName;
         SelectedStaffer.Position = vm.Position;
         SelectedStaffer.Birth = vm.Birth;
-        _stafferService.Update(SelectedStaffer);
         RefreshCollection(Staffers);
     }
 
@@ -132,7 +143,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
         if (!_dialogService.Confirm($"Удалить сотрудника \"{SelectedStaffer.FullName}\"?"))
             return;
 
-        _stafferService.Delete(SelectedStaffer);
+        _stafferService.Delete(SelectedStaffer.Id);
         Staffers.Remove(SelectedStaffer);
     }
 
@@ -145,10 +156,18 @@ public class MainWindowViewModel : INotifyPropertyChanged
         {
             Name = vm.Name,
             Inn = vm.Inn,
-            Staffer = vm.SelectedStaffer!
+            Staffer = new StafferModel
+            {
+                Id = vm.SelectedStaffer!.Id,
+                FullName = vm.SelectedStaffer.FullName,
+                Position = vm.SelectedStaffer.Position,
+                Birth = vm.SelectedStaffer.Birth
+            }
         };
         _counterAgentService.Create(model);
-        CounterAgents.Add(model);
+
+        var dto = model.ToDto();
+        CounterAgents.Add(dto);
     }
 
     private void EditCounterAgent()
@@ -157,10 +176,25 @@ public class MainWindowViewModel : INotifyPropertyChanged
         var vm = new CounterAgentEditorViewModel(_counterAgentService, SelectedCounterAgent);
         if (_dialogService.ShowDialog(vm) != true) return;
 
+        var model = new CounterAgentModel
+        {
+            Id = SelectedCounterAgent.Id,
+            Name = vm.Name,
+            Inn = vm.Inn,
+            Staffer = new StafferModel
+            {
+                Id = vm.SelectedStaffer!.Id,
+                FullName = vm.SelectedStaffer.FullName,
+                Position = vm.SelectedStaffer.Position,
+                Birth = vm.SelectedStaffer.Birth
+            }
+        };
+        _counterAgentService.Update(model);
+
         SelectedCounterAgent.Name = vm.Name;
         SelectedCounterAgent.Inn = vm.Inn;
-        SelectedCounterAgent.Staffer = vm.SelectedStaffer!;
-        _counterAgentService.Update(SelectedCounterAgent);
+        SelectedCounterAgent.StafferId = vm.SelectedStaffer!.Id;
+        SelectedCounterAgent.StafferFullName = vm.SelectedStaffer.FullName;
         RefreshCollection(CounterAgents);
     }
 
@@ -178,7 +212,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
         if (!_dialogService.Confirm($"Удалить контрагента \"{SelectedCounterAgent.Name}\"?"))
             return;
 
-        _counterAgentService.Delete(SelectedCounterAgent);
+        _counterAgentService.Delete(SelectedCounterAgent.Id);
         CounterAgents.Remove(SelectedCounterAgent);
     }
 
@@ -187,15 +221,30 @@ public class MainWindowViewModel : INotifyPropertyChanged
         var vm = new OrderEditorViewModel(_orderService);
         if (_dialogService.ShowDialog(vm) != true) return;
 
+        var staffer = new StafferModel
+        {
+            Id = vm.SelectedStaffer!.Id,
+            FullName = vm.SelectedStaffer.FullName,
+            Position = vm.SelectedStaffer.Position,
+            Birth = vm.SelectedStaffer.Birth
+        };
         var model = new OrderModel
         {
             Sum = vm.Sum,
             Date = vm.Date,
-            Staffer = vm.SelectedStaffer!,
-            CounterAgent = vm.SelectedCounterAgent!
+            Staffer = staffer,
+            CounterAgent = new CounterAgentModel
+            {
+                Id = vm.SelectedCounterAgent!.Id,
+                Name = vm.SelectedCounterAgent.Name,
+                Inn = vm.SelectedCounterAgent.Inn,
+                Staffer = staffer
+            }
         };
         _orderService.Create(model);
-        Orders.Add(model);
+
+        var dto = model.ToDto();
+        Orders.Add(dto);
     }
 
     private void EditOrder()
@@ -204,11 +253,37 @@ public class MainWindowViewModel : INotifyPropertyChanged
         var vm = new OrderEditorViewModel(_orderService, SelectedOrder);
         if (_dialogService.ShowDialog(vm) != true) return;
 
+        var staffer = new StafferModel
+        {
+            Id = vm.SelectedStaffer!.Id,
+            FullName = vm.SelectedStaffer.FullName,
+            Position = vm.SelectedStaffer.Position,
+            Birth = vm.SelectedStaffer.Birth
+        };
+        
+        var model = new OrderModel
+        {
+            Id = SelectedOrder.Id,
+            Sum = vm.Sum,
+            Date = vm.Date,
+            Staffer = staffer,
+            CounterAgent = new CounterAgentModel
+            {
+                Id = vm.SelectedCounterAgent!.Id,
+                Name = vm.SelectedCounterAgent.Name,
+                Inn = vm.SelectedCounterAgent.Inn,
+                Staffer = staffer
+            }
+        };
+        
+        _orderService.Update(model);
+
         SelectedOrder.Sum = vm.Sum;
         SelectedOrder.Date = vm.Date;
-        SelectedOrder.Staffer = vm.SelectedStaffer!;
-        SelectedOrder.CounterAgent = vm.SelectedCounterAgent!;
-        _orderService.Update(SelectedOrder);
+        SelectedOrder.StafferId = vm.SelectedStaffer!.Id;
+        SelectedOrder.StafferFullName = vm.SelectedStaffer.FullName;
+        SelectedOrder.CounterAgentId = vm.SelectedCounterAgent!.Id;
+        SelectedOrder.CounterAgentName = vm.SelectedCounterAgent.Name;
         RefreshCollection(Orders);
     }
 
@@ -218,7 +293,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
         if (!_dialogService.Confirm($"Удалить заказ #{SelectedOrder.Id} на сумму {SelectedOrder.Sum}?"))
             return;
 
-        _orderService.Delete(SelectedOrder);
+        _orderService.Delete(SelectedOrder.Id);
         Orders.Remove(SelectedOrder);
     }
 

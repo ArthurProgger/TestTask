@@ -2,6 +2,4 @@ using Domain;
 
 namespace Application.Repositories;
 
-public interface IOrderRepository : IRepository<OrderModel>
-{
-}
+public interface IOrderRepository : IRepository<OrderModel>;

@@ -41,7 +41,7 @@
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50" />
                             <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*" />
                             <DataGridTextColumn Header="ИНН" Binding="{Binding Inn}" Width="150" />
-                            <DataGridTextColumn Header="Сотрудник" Binding="{Binding Staffer.FullName}" Width="200" />
+                            <DataGridTextColumn Header="Сотрудник" Binding="{Binding StafferFullName}" Width="200" />
                         </DataGrid.Columns>
                     </DataGrid>
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,5,0,0">
@@ -63,8 +63,8 @@
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50" />
                             <DataGridTextColumn Header="Сумма" Binding="{Binding Sum}" Width="100" />
                             <DataGridTextColumn Header="Дата" Binding="{Binding Date, StringFormat={}{0:dd.MM.yyyy}}" Width="120" />
-                            <DataGridTextColumn Header="Сотрудник" Binding="{Binding Staffer.FullName}" Width="*" />
-                            <DataGridTextColumn Header="Контрагент" Binding="{Binding CounterAgent.Name}" Width="*" />
+                            <DataGridTextColumn Header="Сотрудник" Binding="{Binding StafferFullName}" Width="*" />
+                            <DataGridTextColumn Header="Контрагент" Binding="{Binding CounterAgentName}" Width="*" />
                         </DataGrid.Columns>
                     </DataGrid>
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,5,0,0">

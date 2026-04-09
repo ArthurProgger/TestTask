@@ -3,9 +3,5 @@ using NHibernate;
 
 namespace Infrastructure.Repositories;
 
-public class OrderRepository : NHibernateRepository<OrderModel>, Application.Repositories.IOrderRepository
-{
-    public OrderRepository(ISession session) : base(session)
-    {
-    }
-}
+public class OrderRepository(ISession session)
+    : NHibernateRepository<OrderModel>(session), Application.Repositories.IOrderRepository;

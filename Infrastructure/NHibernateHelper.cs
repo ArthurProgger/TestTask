@@ -27,7 +27,9 @@ public class NHibernateHelper
                     .ShowSql()
             )
             .Mappings(m => m.FluentMappings
-                .AddFromAssemblyOf<StafferModelMap>())
+                .AddFromAssemblyOf<StafferModelMap>()
+                .AddFromAssemblyOf<CounterAgentModelMap>()
+                .AddFromAssemblyOf<OrderModelMap>())
             .ExposeConfiguration(cfg =>
             {
                 var schemaUpdate = new SchemaUpdate(cfg);
@@ -36,5 +38,5 @@ public class NHibernateHelper
             .BuildSessionFactory();
     }
 
-    public static ISession аOpenSession() => SessionFactory.OpenSession();
+    public static ISession OpenSession() => SessionFactory.OpenSession();
 }

@@ -14,7 +14,7 @@ public class NHibernateUnitOfWork : IUnitOfWork
 
     public NHibernateUnitOfWork()
     {
-        _session = NHibernateHelper.аOpenSession();
+        _session = NHibernateHelper.OpenSession();
         _transaction = _session.BeginTransaction();
 
         Staffers = new StafferRepository(_session);
@@ -30,5 +30,6 @@ public class NHibernateUnitOfWork : IUnitOfWork
     {
         _transaction.Dispose();
         _session.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

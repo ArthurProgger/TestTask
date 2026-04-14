@@ -1,5 +1,5 @@
 using System.Windows;
-using TestTask.ModelView;
+using TestTask.ViewModel;
 
 namespace TestTask;
 

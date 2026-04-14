@@ -31,4 +31,29 @@ public static class DtoMappingExtensions
         CounterAgentId = model.CounterAgent?.Id ?? 0,
         CounterAgentName = model.CounterAgent?.Name ?? string.Empty
     };
+
+    public static StafferModel ToModel(this StafferDto dto) => new()
+    {
+        Id = dto.Id,
+        FullName = dto.FullName,
+        Position = dto.Position,
+        Birth = dto.Birth
+    };
+
+    public static CounterAgentModel ToModel(this CounterAgentDto dto, StafferModel staffer) => new()
+    {
+        Id = dto.Id,
+        Name = dto.Name,
+        Inn = dto.Inn,
+        Staffer = staffer
+    };
+
+    public static OrderModel ToModel(this OrderDto dto, StafferModel staffer, CounterAgentModel counterAgent) => new()
+    {
+        Id = dto.Id,
+        Sum = dto.Sum,
+        Date = dto.Date,
+        Staffer = staffer,
+        CounterAgent = counterAgent
+    };
 }

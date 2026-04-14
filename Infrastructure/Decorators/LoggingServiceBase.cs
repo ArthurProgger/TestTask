@@ -18,7 +18,7 @@ public abstract class LoggingServiceBase(ILogger logger, IDialogService dialogSe
         {
             logger.LogError(ex, errorMsg);
             dialogService.ShowWarning(ex.Message);
-            return fallback;
+            throw;
         }
     }
 
@@ -34,6 +34,7 @@ public abstract class LoggingServiceBase(ILogger logger, IDialogService dialogSe
         {
             logger.LogError(ex, errorMsg);
             dialogService.ShowWarning(ex.Message);
+            throw;
         }
     }
 }

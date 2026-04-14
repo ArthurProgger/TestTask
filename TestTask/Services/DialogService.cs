@@ -1,6 +1,6 @@
 using System.Windows;
 using Application.Services;
-using TestTask.ModelView.Editors;
+using TestTask.ViewModel.Editors;
 using TestTask.View;
 
 namespace TestTask.Services;

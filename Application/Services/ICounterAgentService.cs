@@ -1,5 +1,4 @@
 using Application.DTOs;
-using Domain;
 
 namespace Application.Services;
 
@@ -7,8 +6,8 @@ public interface ICounterAgentService
 {
     IList<CounterAgentDto> GetAll();
     IList<StafferDto> GetStaffers();
-    void Create(CounterAgentModel model);
-    void Update(CounterAgentModel model);
+    void Create(CounterAgentDto dto);
+    void Update(CounterAgentDto dto);
     bool CanDelete(int counterAgentId);
     void Delete(int counterAgentId);
 }

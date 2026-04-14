@@ -12,5 +12,5 @@ public class StafferModel
 public enum Position
 {
     Director,
-    Employer
+    Employee
 }

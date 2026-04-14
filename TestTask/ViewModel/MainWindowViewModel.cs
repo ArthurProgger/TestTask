@@ -4,10 +4,9 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Application.DTOs;
 using Application.Services;
-using Domain;
-using TestTask.ModelView.Editors;
+using TestTask.ViewModel.Editors;
 
-namespace TestTask.ModelView;
+namespace TestTask.ViewModel;
 
 public class MainWindowViewModel : INotifyPropertyChanged
 {
@@ -96,15 +95,13 @@ public class MainWindowViewModel : INotifyPropertyChanged
         var vm = new StafferEditorViewModel();
         if (_dialogService.ShowDialog(vm) != true) return;
 
-        var model = new StafferModel
+        var dto = new StafferDto
         {
             FullName = vm.FullName,
             Position = vm.Position,
             Birth = vm.Birth
         };
-        _stafferService.Create(model);
-
-        var dto = model.ToDto();
+        _stafferService.Create(dto);
         Staffers.Add(dto);
     }
 
@@ -114,14 +111,14 @@ public class MainWindowViewModel : INotifyPropertyChanged
         var vm = new StafferEditorViewModel(SelectedStaffer);
         if (_dialogService.ShowDialog(vm) != true) return;
 
-        var model = new StafferModel
+        var dto = new StafferDto
         {
             Id = SelectedStaffer.Id,
             FullName = vm.FullName,
             Position = vm.Position,
             Birth = vm.Birth
         };
-        _stafferService.Update(model);
+        _stafferService.Update(dto);
 
         SelectedStaffer.FullName = vm.FullName;
         SelectedStaffer.Position = vm.Position;
@@ -152,21 +149,14 @@ public class MainWindowViewModel : INotifyPropertyChanged
         var vm = new CounterAgentEditorViewModel(_counterAgentService);
         if (_dialogService.ShowDialog(vm) != true) return;
 
-        var model = new CounterAgentModel
+        var dto = new CounterAgentDto
         {
             Name = vm.Name,
             Inn = vm.Inn,
-            Staffer = new StafferModel
-            {
-                Id = vm.SelectedStaffer!.Id,
-                FullName = vm.SelectedStaffer.FullName,
-                Position = vm.SelectedStaffer.Position,
-                Birth = vm.SelectedStaffer.Birth
-            }
+            StafferId = vm.SelectedStaffer!.Id,
+            StafferFullName = vm.SelectedStaffer.FullName
         };
-        _counterAgentService.Create(model);
-
-        var dto = model.ToDto();
+        _counterAgentService.Create(dto);
         CounterAgents.Add(dto);
     }
 
@@ -176,20 +166,15 @@ public class MainWindowViewModel : INotifyPropertyChanged
         var vm = new CounterAgentEditorViewModel(_counterAgentService, SelectedCounterAgent);
         if (_dialogService.ShowDialog(vm) != true) return;
 
-        var model = new CounterAgentModel
+        var dto = new CounterAgentDto
         {
             Id = SelectedCounterAgent.Id,
             Name = vm.Name,
             Inn = vm.Inn,
-            Staffer = new StafferModel
-            {
-                Id = vm.SelectedStaffer!.Id,
-                FullName = vm.SelectedStaffer.FullName,
-                Position = vm.SelectedStaffer.Position,
-                Birth = vm.SelectedStaffer.Birth
-            }
+            StafferId = vm.SelectedStaffer!.Id,
+            StafferFullName = vm.SelectedStaffer.FullName
         };
-        _counterAgentService.Update(model);
+        _counterAgentService.Update(dto);
 
         SelectedCounterAgent.Name = vm.Name;
         SelectedCounterAgent.Inn = vm.Inn;
@@ -221,29 +206,16 @@ public class MainWindowViewModel : INotifyPropertyChanged
         var vm = new OrderEditorViewModel(_orderService);
         if (_dialogService.ShowDialog(vm) != true) return;
 
-        var staffer = new StafferModel
-        {
-            Id = vm.SelectedStaffer!.Id,
-            FullName = vm.SelectedStaffer.FullName,
-            Position = vm.SelectedStaffer.Position,
-            Birth = vm.SelectedStaffer.Birth
-        };
-        var model = new OrderModel
+        var dto = new OrderDto
         {
             Sum = vm.Sum,
             Date = vm.Date,
-            Staffer = staffer,
-            CounterAgent = new CounterAgentModel
-            {
-                Id = vm.SelectedCounterAgent!.Id,
-                Name = vm.SelectedCounterAgent.Name,
-                Inn = vm.SelectedCounterAgent.Inn,
-                Staffer = staffer
-            }
+            StafferId = vm.SelectedStaffer!.Id,
+            StafferFullName = vm.SelectedStaffer.FullName,
+            CounterAgentId = vm.SelectedCounterAgent!.Id,
+            CounterAgentName = vm.SelectedCounterAgent.Name
         };
-        _orderService.Create(model);
-
-        var dto = model.ToDto();
+        _orderService.Create(dto);
         Orders.Add(dto);
     }
 
@@ -253,30 +225,17 @@ public class MainWindowViewModel : INotifyPropertyChanged
         var vm = new OrderEditorViewModel(_orderService, SelectedOrder);
         if (_dialogService.ShowDialog(vm) != true) return;
 
-        var staffer = new StafferModel
-        {
-            Id = vm.SelectedStaffer!.Id,
-            FullName = vm.SelectedStaffer.FullName,
-            Position = vm.SelectedStaffer.Position,
-            Birth = vm.SelectedStaffer.Birth
-        };
-        
-        var model = new OrderModel
+        var dto = new OrderDto
         {
             Id = SelectedOrder.Id,
             Sum = vm.Sum,
             Date = vm.Date,
-            Staffer = staffer,
-            CounterAgent = new CounterAgentModel
-            {
-                Id = vm.SelectedCounterAgent!.Id,
-                Name = vm.SelectedCounterAgent.Name,
-                Inn = vm.SelectedCounterAgent.Inn,
-                Staffer = staffer
-            }
+            StafferId = vm.SelectedStaffer!.Id,
+            StafferFullName = vm.SelectedStaffer.FullName,
+            CounterAgentId = vm.SelectedCounterAgent!.Id,
+            CounterAgentName = vm.SelectedCounterAgent.Name
         };
-        
-        _orderService.Update(model);
+        _orderService.Update(dto);
 
         SelectedOrder.Sum = vm.Sum;
         SelectedOrder.Date = vm.Date;

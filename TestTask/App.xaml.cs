@@ -1,12 +1,15 @@
+using System.IO;
 using System.Windows;
 using Application.Repositories;
 using Application.Services;
+using Infrastructure;
 using Infrastructure.Decorators;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using TestTask.ModelView;
+using TestTask.ViewModel;
 
 namespace TestTask;
 
@@ -18,9 +21,20 @@ public partial class App : System.Windows.Application
     {
         base.OnStartup(e);
 
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false)
+            .AddJsonFile("appsettings.Development.json", optional: true)
+            .Build();
+
         var services = new ServiceCollection();
 
         services.AddLogging(builder => builder.AddConsole());
+
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found in appsettings.json");
+
+        services.AddSingleton(new NHibernateHelper(connectionString));
 
         services.AddTransient<IUnitOfWork, NHibernateUnitOfWork>();
         services.AddSingleton<Func<IUnitOfWork>>(sp => () => sp.GetRequiredService<IUnitOfWork>());

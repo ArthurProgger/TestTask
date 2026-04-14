@@ -8,35 +8,24 @@ namespace Infrastructure;
 
 public class NHibernateHelper
 {
-    private static ISessionFactory? _sessionFactory;
+    private readonly ISessionFactory _sessionFactory;
 
-    public static ISessionFactory SessionFactory =>
-        _sessionFactory ??= CreateSessionFactory();
-
-    private static ISessionFactory CreateSessionFactory()
+    public NHibernateHelper(string connectionString)
     {
-        return Fluently.Configure()
+        _sessionFactory = Fluently.Configure()
             .Database(
                 MySQLConfiguration.Standard
-                    .ConnectionString(c => c
-                        .Server("localhost")
-                        .Port(3306)
-                        .Database("test_db")
-                        .Username("root")
-                        .Password("test_pass"))
-                    .ShowSql()
+                    .ConnectionString(connectionString)
             )
             .Mappings(m => m.FluentMappings
-                .AddFromAssemblyOf<StafferModelMap>()
-                .AddFromAssemblyOf<CounterAgentModelMap>()
-                .AddFromAssemblyOf<OrderModelMap>())
+                .AddFromAssemblyOf<StafferModelMap>())
             .ExposeConfiguration(cfg =>
             {
                 var schemaUpdate = new SchemaUpdate(cfg);
-                schemaUpdate.Execute(useStdOut: true, doUpdate: true);
+                schemaUpdate.Execute(useStdOut: false, doUpdate: true);
             })
             .BuildSessionFactory();
     }
 
-    public static ISession OpenSession() => SessionFactory.OpenSession();
+    public ISession OpenSession() => _sessionFactory.OpenSession();
 }

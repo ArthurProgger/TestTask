@@ -1,6 +1,5 @@
 using Application.DTOs;
 using Application.Services;
-using Domain;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Decorators;
@@ -22,17 +21,17 @@ public class LoggingCounterAgentService(
         "GetStaffers: сотрудники получены",
         "GetStaffers: ошибка при получении сотрудников");
 
-    public void Create(CounterAgentModel model) => Execute(
-        () => inner.Create(model),
-        $"Create: создание контрагента \"{model.Name}\"",
-        $"Create: контрагент \"{model.Name}\" создан (Id={model.Id})",
-        $"Create: ошибка при создании контрагента \"{model.Name}\"");
+    public void Create(CounterAgentDto dto) => Execute(
+        () => inner.Create(dto),
+        $"Create: создание контрагента \"{dto.Name}\"",
+        $"Create: контрагент \"{dto.Name}\" создан (Id={dto.Id})",
+        $"Create: ошибка при создании контрагента \"{dto.Name}\"");
 
-    public void Update(CounterAgentModel model) => Execute(
-        () => inner.Update(model),
-        $"Update: обновление контрагента Id={model.Id}",
-        $"Update: контрагент Id={model.Id} обновлён",
-        $"Update: ошибка при обновлении контрагента Id={model.Id}");
+    public void Update(CounterAgentDto dto) => Execute(
+        () => inner.Update(dto),
+        $"Update: обновление контрагента Id={dto.Id}",
+        $"Update: контрагент Id={dto.Id} обновлён",
+        $"Update: ошибка при обновлении контрагента Id={dto.Id}");
 
     public bool CanDelete(int counterAgentId) => Execute(
         () => inner.CanDelete(counterAgentId), false,

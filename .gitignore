@@ -4,4 +4,9 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 .idea
-TestTask.sln.DotSettings.user
+*.sln.DotSettings.user
+.vs/
+*.user
+*.suo
+*.cache
+appsettings.Development.json

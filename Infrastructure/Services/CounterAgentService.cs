@@ -1,7 +1,6 @@
 using Application.DTOs;
 using Application.Repositories;
 using Application.Services;
-using Domain;
 
 namespace Infrastructure.Services;
 
@@ -19,16 +18,23 @@ public class CounterAgentService(Func<IUnitOfWork> uowFactory) : ICounterAgentSe
         return uow.Staffers.GetAll().Select(s => s.ToDto()).ToList();
     }
 
-    public void Create(CounterAgentModel model)
+    public void Create(CounterAgentDto dto)
     {
         using var uow = uowFactory();
+        var staffer = uow.Staffers.GetById(dto.StafferId)
+            ?? throw new InvalidOperationException($"Staffer with Id={dto.StafferId} not found");
+        var model = dto.ToModel(staffer);
         uow.CounterAgents.Save(model);
         uow.Commit();
+        dto.Id = model.Id;
     }
 
-    public void Update(CounterAgentModel model)
+    public void Update(CounterAgentDto dto)
     {
         using var uow = uowFactory();
+        var staffer = uow.Staffers.GetById(dto.StafferId)
+            ?? throw new InvalidOperationException($"Staffer with Id={dto.StafferId} not found");
+        var model = dto.ToModel(staffer);
         uow.CounterAgents.Update(model);
         uow.Commit();
     }
@@ -36,7 +42,7 @@ public class CounterAgentService(Func<IUnitOfWork> uowFactory) : ICounterAgentSe
     public bool CanDelete(int counterAgentId)
     {
         using var uow = uowFactory();
-        var hasOrders = uow.Orders.GetAll().Any(o => o.CounterAgent.Id == counterAgentId);
+        var hasOrders = uow.Orders.Any(o => o.CounterAgent.Id == counterAgentId);
         return !hasOrders;
     }
 
@@ -44,9 +50,9 @@ public class CounterAgentService(Func<IUnitOfWork> uowFactory) : ICounterAgentSe
     {
         using var uow = uowFactory();
         var entity = uow.CounterAgents.GetById(counterAgentId);
-        
+
         if (entity == null) return;
-        
+
         uow.CounterAgents.Delete(entity);
         uow.Commit();
     }

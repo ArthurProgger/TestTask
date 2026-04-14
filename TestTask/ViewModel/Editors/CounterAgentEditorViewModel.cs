@@ -1,35 +1,35 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 using System.Windows.Input;
 using Application.DTOs;
 using Application.Services;
 
-namespace TestTask.ModelView.Editors;
+namespace TestTask.ViewModel.Editors;
 
-public class OrderEditorViewModel : INotifyPropertyChanged, IDataErrorInfo
+public partial class CounterAgentEditorViewModel : INotifyPropertyChanged, IDataErrorInfo
 {
-    private int _sum;
-    private DateTime _date = DateTime.Today;
+    private string _name = string.Empty;
+    private string _inn = string.Empty;
     private StafferDto? _selectedStaffer;
-    private CounterAgentDto? _selectedCounterAgent;
 
-    public int Sum
+    public string Name
     {
-        get => _sum;
+        get => _name;
         set
         {
-            _sum = value;
-            OnPropertyChanged(nameof(Sum));
+            _name = value;
+            OnPropertyChanged(nameof(Name));
         }
     }
 
-    public DateTime Date
+    public string Inn
     {
-        get => _date;
+        get => _inn;
         set
         {
-            _date = value;
-            OnPropertyChanged(nameof(Date));
+            _inn = value;
+            OnPropertyChanged(nameof(Inn));
         }
     }
 
@@ -43,18 +43,7 @@ public class OrderEditorViewModel : INotifyPropertyChanged, IDataErrorInfo
         }
     }
 
-    public CounterAgentDto? SelectedCounterAgent
-    {
-        get => _selectedCounterAgent;
-        set
-        {
-            _selectedCounterAgent = value;
-            OnPropertyChanged(nameof(SelectedCounterAgent));
-        }
-    }
-
     public ObservableCollection<StafferDto> Staffers { get; } = new();
-    public ObservableCollection<CounterAgentDto> CounterAgents { get; } = new();
 
     public string Title { get; }
 
@@ -64,22 +53,20 @@ public class OrderEditorViewModel : INotifyPropertyChanged, IDataErrorInfo
     public bool? DialogResult { get; private set; }
     public event Action<bool?>? CloseRequested;
 
-    public OrderEditorViewModel(IOrderService service, OrderDto? existing = null)
+    public CounterAgentEditorViewModel(ICounterAgentService service, CounterAgentDto? existing = null)
     {
         foreach (var s in service.GetStaffers()) Staffers.Add(s);
-        foreach (var c in service.GetCounterAgents()) CounterAgents.Add(c);
 
         if (existing != null)
         {
-            Title = "Редактирование заказа";
-            Sum = existing.Sum;
-            Date = existing.Date;
+            Title = "Редактирование контрагента";
+            Name = existing.Name;
+            Inn = existing.Inn;
             SelectedStaffer = Staffers.FirstOrDefault(s => s.Id == existing.StafferId);
-            SelectedCounterAgent = CounterAgents.FirstOrDefault(c => c.Id == existing.CounterAgentId);
         }
         else
         {
-            Title = "Новый заказ";
+            Title = "Новый контрагент";
         }
 
         SaveCommand = new RelayCommand(_ => Save(), _ => IsValid);
@@ -87,8 +74,8 @@ public class OrderEditorViewModel : INotifyPropertyChanged, IDataErrorInfo
     }
 
     private bool IsValid =>
-        string.IsNullOrWhiteSpace(this[nameof(Sum)]) && string.IsNullOrWhiteSpace(this[nameof(SelectedStaffer)]) &&
-        string.IsNullOrWhiteSpace(this[nameof(SelectedCounterAgent)]);
+        string.IsNullOrWhiteSpace(this[nameof(Name)]) && string.IsNullOrWhiteSpace(this[nameof(Inn)]) &&
+        string.IsNullOrWhiteSpace(this[nameof(SelectedStaffer)]);
 
     private void Save()
     {
@@ -107,13 +94,16 @@ public class OrderEditorViewModel : INotifyPropertyChanged, IDataErrorInfo
     public string this[string columnName] =>
         columnName switch
         {
-            nameof(Sum) => Sum <= 0 ? "Сумма должна быть больше 0" : string.Empty,
+            nameof(Name) => string.IsNullOrWhiteSpace(Name) ? "Название обязательно" : string.Empty,
+            nameof(Inn) => !InnRegex().IsMatch(Inn ?? "") ? "ИНН должен содержать 10 или 12 цифр" : string.Empty,
             nameof(SelectedStaffer) => SelectedStaffer == null ? "Выберите сотрудника" : string.Empty,
-            nameof(SelectedCounterAgent) => SelectedCounterAgent == null ? "Выберите контрагента" : string.Empty,
             _ => string.Empty
         };
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+    [GeneratedRegex(@"^\d{10}(\d{2})?$")]
+    private static partial Regex InnRegex();
 }

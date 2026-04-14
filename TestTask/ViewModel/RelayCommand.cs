@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace TestTask.ModelView;
+namespace TestTask.ViewModel;
 
 public class RelayCommand(Action<object?> execute, Func<object?, bool>? canExecute = null)
     : ICommand

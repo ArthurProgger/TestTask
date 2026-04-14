@@ -1,6 +1,5 @@
 using Application.DTOs;
 using Application.Services;
-using Domain;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Decorators;
@@ -28,17 +27,17 @@ public class LoggingOrderService(
         "GetCounterAgents: контрагенты получены",
         "GetCounterAgents: ошибка при получении контрагентов");
 
-    public void Create(OrderModel model) => Execute(
-        () => inner.Create(model),
-        $"Create: создание заказа на сумму {model.Sum}",
-        $"Create: заказ создан (Id={model.Id}, Sum={model.Sum})",
-        $"Create: ошибка при создании заказа на сумму {model.Sum}");
+    public void Create(OrderDto dto) => Execute(
+        () => inner.Create(dto),
+        $"Create: создание заказа на сумму {dto.Sum}",
+        $"Create: заказ создан (Id={dto.Id}, Sum={dto.Sum})",
+        $"Create: ошибка при создании заказа на сумму {dto.Sum}");
 
-    public void Update(OrderModel model) => Execute(
-        () => inner.Update(model),
-        $"Update: обновление заказа Id={model.Id}",
-        $"Update: заказ Id={model.Id} обновлён",
-        $"Update: ошибка при обновлении заказа Id={model.Id}");
+    public void Update(OrderDto dto) => Execute(
+        () => inner.Update(dto),
+        $"Update: обновление заказа Id={dto.Id}",
+        $"Update: заказ Id={dto.Id} обновлён",
+        $"Update: ошибка при обновлении заказа Id={dto.Id}");
 
     public void Delete(int orderId) => Execute(
         () => inner.Delete(orderId),

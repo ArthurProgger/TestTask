@@ -12,9 +12,9 @@ public class NHibernateUnitOfWork : IUnitOfWork
     public ICounterAgentRepository CounterAgents { get; }
     public IOrderRepository Orders { get; }
 
-    public NHibernateUnitOfWork()
+    public NHibernateUnitOfWork(NHibernateHelper helper)
     {
-        _session = NHibernateHelper.OpenSession();
+        _session = helper.OpenSession();
         _transaction = _session.BeginTransaction();
 
         Staffers = new StafferRepository(_session);

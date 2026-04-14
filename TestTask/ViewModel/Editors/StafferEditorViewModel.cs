@@ -3,7 +3,7 @@ using System.Windows.Input;
 using Application.DTOs;
 using Domain;
 
-namespace TestTask.ModelView.Editors;
+namespace TestTask.ViewModel.Editors;
 
 public class StafferEditorViewModel : INotifyPropertyChanged, IDataErrorInfo
 {

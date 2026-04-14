@@ -1,5 +1,5 @@
 using System.Windows;
-using TestTask.ModelView.Editors;
+using TestTask.ViewModel.Editors;
 
 namespace TestTask.View;
 
